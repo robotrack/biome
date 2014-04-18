@@ -2,17 +2,19 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Add a Page</h1>
+<h3>Create content pages</h3>
 <form action="" method="post" name="pages">
     {{form.hidden_tag()}}
     <div class="field"> 
-        <span>Page Title:</span><br />
+        <span><b>Content page name:</b></span><br />
         {{form.page_title(size = 24)}}
     </div>
+    <br />
     <div class="field"> 
-        <span>Content:</span><br />
+        <span><b>Content page:</b></span><br />
         {{form.page_content()}}
     </div>
+    <br />
     <input type="submit" value="Save Changes" class="btn btn-primary">
 </form>
 {% endblock %}

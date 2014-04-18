@@ -49,10 +49,42 @@ def page(nickname, pagename):
         page_content = user_page)
 
 
+@app.route('/page/<nickname>/<pagename>/edit', methods = ['GET', 'POST'])
+@login_required
+def edit_page(nickname, pagename):
+
+	if nickname != g.user.nickname:
+		flash('Cannot edit another users content page.')
+		return redirect(url_for('index'))
+
+	user_page = g.user.user_page(pagename)
+
+	if user_page == None:
+		flash('Content page doesn''t exist')
+		return redirect(url_for('index'))
+
+	form = PageForm()
+
+	if form.validate_on_submit():
+		user_page.page_title = form.page_title.data
+		user_page.page_content = form.page_content.data
+		db.session.add(user_page)
+		db.session.commit()
+		flash('Updated content page successfully!')
+		return redirect(url_for('index'))
+	else:
+		form.page_title.data = user_page.page_title
+		form.page_content.data = user_page.page_content
+
+	return render_template('page_form.html',
+		form = form)
+
+
 @app.route('/pages', methods = ['GET', 'POST'])
 @login_required
 def pages():
 	form = PageForm()
+
 	if form.validate_on_submit():
 		page = Page(page_title = form.page_title.data, page_content = form.page_content.data, user_id = g.user.id)
 		db.session.add(page)

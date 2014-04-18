@@ -77,10 +77,13 @@ class User(db.Model):
                 break
             version += 1
         return new_nickname
- 
+
     @staticmethod
     def make_valid_nickname(nickname):
     	return re.sub('[^a-zA-Z0-9_\.]', '', nickname)
+
+
+
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -91,8 +94,16 @@ class Post(db.Model):
     def __repr__(self):
         return '<Post %r>' % (self.body)
 
+
+
 class Page(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     page_content = db.Column(db.Text)
     page_title = db.Column(db.String(120), index = True)
+
+
+
+
+
+
