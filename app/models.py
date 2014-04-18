@@ -1,5 +1,6 @@
 from app import db
 from hashlib import md5
+import re
 
 ROLE_USER = 0
 ROLE_ADMIN = 1
@@ -23,12 +24,13 @@ class User(db.Model):
         secondaryjoin = (followers.c.followed_id == id), 
         backref = db.backref('followers', lazy = 'dynamic'), 
         lazy = 'dynamic')
-    
+
     def follow(self, user):
         if not self.is_following(user):
             self.followed.append(user)
             return self
 
+   	
     def unfollow(self, user):
         if self.is_following(user):
             self.followed.remove(user)
@@ -75,6 +77,10 @@ class User(db.Model):
                 break
             version += 1
         return new_nickname
+ 
+    @staticmethod
+    def make_valid_nickname(nickname):
+    	return re.sub('[^a-zA-Z0-9_\.]', '', nickname)
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key = True)

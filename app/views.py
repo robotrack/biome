@@ -4,6 +4,13 @@ from app import app, db, lm, oid
 from forms import LoginForm, EditForm, PostForm, PageForm
 from models import User, ROLE_USER, ROLE_ADMIN, Post, Page
 from datetime import datetime
+from app import babel
+from config import LANGUAGES
+from flask.ext.babel import gettext
+
+@babel.localeselector
+def get_locale():
+	return request.accept_languages.best_match(LANGUAGES.keys())
 
 @app.route('/', methods = ['GET', 'POST'])
 @app.route('/index', methods = ['GET', 'POST'])
@@ -111,13 +118,17 @@ def login():
 @oid.after_login
 def after_login(resp):
     if resp.email is None or resp.email == "":
-        flash('Invalid login. Please try again.')
+        flash(gettext('Invalid login. Please try again.'))
         redirect(url_for('login'))
     user = User.query.filter_by(email = resp.email).first()
+
     if user is None:
         nickname = resp.nickname
+
         if nickname is None or nickname == "":
             nickname = resp.email.split('@')[0]
+
+        nickname = User.make_valid_nickname(nickname)
         nickname = User.make_unique_nickname(nickname)
         user = User(nickname = nickname, email = resp.email, role = ROLE_USER)
         db.session.add(user)
@@ -127,9 +138,11 @@ def after_login(resp):
         db.session.commit()
 
     remember_me = False
+
     if 'remember_me' in session:
         remember_me = session['remember_me']
         session.pop('remember_me', None)
+
     login_user(user, remember = remember_me)
     return redirect(request.args.get('next') or url_for('index'))
 
